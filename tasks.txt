@@ -1,0 +1,8 @@
+Week 1 (6/8/2021-)
+- Assignment 1: use tf to take derivatives (automatic differentiation)
+- Assignment 2: make a deep O net to take derivatives
+    - try to make it efficient
+    - can use images
+
+- Assignment 3: Learn Tensorboard (visualizer)
+- Assignment 4: Train your deep O net to do something else
