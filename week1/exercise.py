@@ -1,4 +1,5 @@
 # Jessica Turner, 6/11/2021
+# exercise to learn how neural networks work (what goes into weights, biases, loss)
 
 # known points for the function (x1, x2, y)
 points = {(0, 1): 7, (1, 0): 5, (1, 1): 10}
@@ -9,7 +10,7 @@ def J(w, b, c):
     loss = 0
     num_points = len(points)
     for input_pair in points:
-
+        #          y (guess)                                        y_true
         loss += (((w * input_pair[0]) + b + (c * input_pair[1]) - points[input_pair]) ** 2)
 
     # since J(w, b, c) = 1/N summation(y - y_true)
