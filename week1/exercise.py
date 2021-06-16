@@ -4,9 +4,9 @@
 # known points for the function (x1, x2, y)
 points = {(0, 1): 7, (1, 0): 5, (1, 1): 10}
 
+
 # loss/cost
 def J(w, b, c):
-
     loss = 0
     num_points = len(points)
     for input_pair in points:
@@ -38,13 +38,13 @@ c_new = 0
 for i in range(num_iterations):
     print('\n' + ("=" * 30) + " iteration {} ".format(i + 1) + ("=" * 30))
 
-    dJ_dw = (2/3) * (2 * w_prev + 2 * b_prev + c_prev - 15)
+    dJ_dw = (2 / 3) * (2 * w_prev + 2 * b_prev + c_prev - 15)
     w_new = w_prev - alpha * dJ_dw
 
-    dJ_db = (2/3) * (2 * w_prev + 3 * b_prev + 2 * c_prev - 22)
+    dJ_db = (2 / 3) * (2 * w_prev + 3 * b_prev + 2 * c_prev - 22)
     b_new = b_prev - alpha * dJ_db
 
-    dJ_dc = (2/3) * (w_prev + 2 * b_prev + 2 * c_prev - 17)
+    dJ_dc = (2 / 3) * (w_prev + 2 * b_prev + 2 * c_prev - 17)
     c_new = c_prev - alpha * dJ_dc
 
     print('New vals:' + '\n\tw = {}\n\tb = {}\n\tc = {}'.format(w_new, b_new, c_new))
