@@ -75,6 +75,7 @@ class Model:
 
         pass
 
+
     def display(self):
         # see how weights and biases for all the nodes are
         layer_num = 1
@@ -91,7 +92,7 @@ class Model:
         pass
 
 
-model = Model(num_layers=2, nodes_per_layer=3, input_dim=1, output_dim=1)
+model = Model(num_layers=1, nodes_per_layer=1, input_dim=1, output_dim=1)
 model.build()
 model.display()
 
