@@ -1,4 +1,4 @@
-# Jessica Turner, 6/15/2021
+# Jessica Turner, 6/15/2021-6/17/2021
 import numpy as np
 
 import tensorflow as tf
