@@ -18,12 +18,6 @@ target_Y = np.asarray([1.7, 2.76, 2.09, 3.19, 1.694, 1.573, 3.366, 2.596, 2.53, 
                        2.827, 3.465, 1.65, 2.904, 2.42, 2.94, 1.3])
 num_samples = target_X.shape
 
-'''
-x_tf = tf.placeholder("float")
-y_tf = tf.placeholder("float")
-learning_rate = 0.45
-'''
-
 
 class Node:
     def __init__(self, activation_value=0):
@@ -40,11 +34,12 @@ class Node:
 
 
 class Model:
-    def __init__(self, num_layers, nodes_per_layer, input_dim=1, output_dim=1):
+    def __init__(self, num_layers, nodes_per_layer):
         self.num_layers = num_layers
         self.nodes_per_layer = nodes_per_layer
-        self.input_dim = input_dim
-        self.output_dim = output_dim
+        # can be adjusted for specific problem
+        self.input = tf.placeholder(tf.float32, [None, 1], name="X")
+        self.output = tf.placeholder(tf.float32, [None, 1], name="Y")
         self.layers = []
         pass
 
@@ -73,8 +68,8 @@ class Model:
     def eval(self, input_val):
         """
         Evaluates the current line (corresponding ouptuts) based on the weights and biases
-        :param input_val:
-        :return:
+        :param input_val: an array of X values
+        :return: an array of the resulting approximate y values
         """
         if not isinstance(input_val, list):
             input_val = np.asarray(input_val)
@@ -91,9 +86,11 @@ class Model:
                 layer_sum = 0
                 for node in layer:
                     # node.weight * node.activation_value + node.bias
-                    node_eval = \
-                    (node.sess.run(node.weight) * node.activation_value \
-                     + node.sess.run(node.bias))
+                    # tf.add(node.weight * node.activation_value, node.bias)
+                    node_eval = (node.sess.run(node.weight) * node.activation_value \
+                                 + node.sess.run(node.bias))
+                    #(node.sess.run(node.weight) * node.activation_value \
+                    # + node.sess.run(node.bias))
                     layer_sum += node_eval
                     for next_node in node.next_nodes:
                         next_node.activation_value += node_eval
@@ -125,15 +122,22 @@ class Model:
         pass
 
     def loss(self):
+
         total_loss = 0
 
         for index in range(num_samples[0]):
             for y_guess in self.eval(target_X):
-                total_loss += tf.square(y_guess - target_Y[index])
+                total_loss += (y_guess - target_Y[index]) ** 2
         return total_loss / num_samples
 
         # alternative so its a tensor which can calculate gradient hopefully
         # return tf.reduce_mean(tf.square(self.eval(target_X) - target_Y))
+
+
+    def loss_tensor(self):
+        y_guesses = tf.convert_to_tensor(self.eval(target_X))
+        return tf.reduce_mean(tf.square(y_guesses - target_Y), keepdims=True)
+        pass
 
     def train(self):
         """
@@ -142,7 +146,8 @@ class Model:
         """
         for layer in self.layers:
             for node in layer:
-                loss = self.loss()
+                loss = self.loss_tensor()
+                print(loss)
                 dJ_dw = tf.gradients(loss, node.weight)[0]
                 dJ_db = tf.gradients(loss, node.bias)[0]
                 print("dJ_dw =", dJ_dw)
@@ -151,14 +156,14 @@ class Model:
         pass
 
 
-model = Model(num_layers=1, nodes_per_layer=3, input_dim=1, output_dim=1)
+model = Model(num_layers=1, nodes_per_layer=3)
 model.build()
 model.display()
 model.train()
 
 
 plt.plot(target_X, target_Y, 'ro', label='Training data')
-
+print(model.eval(target_X))
 plt.plot(target_X, model.eval(target_X), 'green', label='Approximation')
 plt.legend()
 plt.show()
