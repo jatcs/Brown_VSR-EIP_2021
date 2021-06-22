@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 # initialization for the weights / biases (from Shengze's functionApprox-0619.py)
 def parameters_initialization(size):
-    return tf.Variable(tf.random_normal(shape=size, mean=0., stddev=0.1), dtype=tf.float64)
+    return tf.Variable(tf.random_normal(shape=size, mean=0., stddev=0.1, dtype=tf.float64), dtype=tf.float64)
 
 
 # basically DNN from shengze's implementation but with comments to check that I understand
@@ -38,10 +38,13 @@ if __name__ == '__main__':
     train_Y = np.asarray([1.7, 2.76, 2.09, 3.19, 1.694, 1.573, 3.366, 2.596, 2.53, 1.221,
                            2.827, 3.465, 1.65, 2.904, 2.42, 2.94, 1.3])
 
+    # allow these batches to be compatible with tf.matmul (have it be rank 2 (number of dimensions I suppose))
+    train_X = train_X.reshape(-1, 1)
+    train_Y = train_Y.reshape(-1, 1)
+
     num_samples = train_X.shape
     # unseen X for the target to guess
     random_X = (max(train_X) - min(train_X)) * np.random.random_sample(num_samples,) + min(train_X)
-
 
     # details for model size
     num_inputs = 1
@@ -49,8 +52,8 @@ if __name__ == '__main__':
     num_layers = 1
     num_nodes = 3
 
-    x_tf = tf.placeholder(dtype=tf.float32, shape=[None, 1])
-    y_tf = tf.placeholder(dtype=tf.float32, shape=[None, 1])
+    x_tf = tf.placeholder(dtype=tf.float64, shape=[None, 1])
+    y_tf = tf.placeholder(dtype=tf.float64, shape=[None, 1])
 
     # updated to use lists instead of one variable with shape=(num_layers, num_nodes)
     model_shape = [num_inputs] + num_layers * [num_nodes] + [num_outputs]
@@ -62,21 +65,14 @@ if __name__ == '__main__':
 
     y_pred_tf = network(train_X, W, b)
     loss = tf.reduce_mean(tf.square(y_pred_tf - y_tf))
-    
-    dJ_dw_tf = tf.gradients(loss, W)[0]
-    dJ_db_tf = tf.gradients(loss, b)[0]
-    
-    # learning rate
-    alpha = 0.45
+
+    learning_rate = 1.0e-1
+    train = tf.train.AdamOptimizer(learning_rate).minimize(loss)
+
     # desired accuracy
     epsilon = 0.00001
     # max iteration
     num_iterations = 100
-    
-    # to store computations from gradient descent
-    w_new = 0
-    b_new = 0
-    c_new = 0
     
     # train
     for i in range(num_iterations):
@@ -89,19 +85,9 @@ if __name__ == '__main__':
         w_prev, b_prev = sess.run([W, b])
         # Computing loss from graph (input and output data required)
         prev_loss = sess.run(loss, feed_dict=tf_dict)
-        # Computing the derivatives/gradients using !AD! (input and output data required)
-        dJ_dw, dJ_db = sess.run([dJ_dw_tf, dJ_db_tf], feed_dict=tf_dict)
-    
-        w_new = w_prev - alpha * dJ_dw
-        b_new = b_prev - alpha * dJ_db
-    
-        print('New vals:' + '\n\tw = {}\n\tb = {}'.format(w_new, b_new))
-    
-        # update vals
-        assign_w = W.assign(w_new)
-        assign_b = b.assign(b_new)
-        sess.run(assign_w)
-        sess.run(assign_b)
+
+        sess.run(train, feed_dict=tf_dict)
+        #^ FailedPreconditionError: Attempting to use uninitialized value beta1_power [[{{node beta1_power/read}}]]
     
         # check that its approaching 0 (where min occurs)
         current_loss = sess.run(loss, feed_dict=tf_dict)
