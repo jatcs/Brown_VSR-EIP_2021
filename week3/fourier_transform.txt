@@ -1,0 +1,16 @@
+used to see how neural network
+
+can run it through our function approximation
+
+use np.fft.fft (takes in discrete values)
+- could pass in train_Y
+- x - axis = frequency
+- y - axis = amplitude
+
+- play around with the optimizers for function approx
+    - take note of which parameters work best for which optimization
+        - learning rate, dimensions (architecture)
+        - once done, ask Dr. Karniadakis for next steps (-> PINNs or deepO)
+
+- read up on fourier transform, optimizers, why NN learns how it does
+    - PINN (physics informed NN)
