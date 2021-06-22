@@ -11,8 +11,8 @@ from IPython import embed
 
 
 def function_target(x):
-    return (5 + tf.sin(x) + tf.sin(2 * x) + tf.sin(3 * x) + tf.sin(4 * x)) \
-        if (x < 0) else tf.cos(10 * x)
+    return (5 + np.sin(x) + np.sin(2 * x) + np.sin(3 * x) + np.sin(4 * x)) \
+        if (x < 0) else np.cos(10 * x)
 
 
 def parameters_initialization(size_list):
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     X_DIM, LOWER_BOUND = 0, 0
     Y_DIM, UPPER_BOUND = 1, 1
     # initialize training set
-    num_points = 50
+    num_points = 100
     domain = (-1 * math.pi, math.pi)
     train_X = np.asarray(((domain[UPPER_BOUND] - domain[LOWER_BOUND]) * np.random.random_sample(num_points)) + domain[LOWER_BOUND])
     train_Y = np.asarray([function_target(x) for x in train_X])
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     num_inputs = 1
     num_outputs = 1
     num_layers = 2
-    num_nodes = 3
+    num_nodes = 45
 
     # input and output nodes
     x_tf = tf.placeholder(dtype=tf.float64, name="X", shape=[None, 1])
@@ -62,19 +62,21 @@ if __name__ == '__main__':
     W = [parameters_initialization([model_shape[i - 1], model_shape[i]]) for i in range(1, len(model_shape))]
     b = [parameters_initialization([1, model_shape[i]]) for i in range(1, len(model_shape))]
 
+    # node operations
+    y_pred_tf = network(x_tf, W, b)
+    loss = tf.reduce_mean(tf.square(y_pred_tf - y_tf))
+
+    learning_rate = 1.0e-3
+    train = tf.train.AdamOptimizer(learning_rate).minimize(loss)
+
+    # must be after graph initialization
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
 
-    y_pred_tf = network(train_X, W, b)
-    loss = tf.reduce_mean(tf.square(y_pred_tf - y_tf))
-
-    learning_rate = 1.0e-1
-    train = tf.train.AdamOptimizer(learning_rate).minimize(loss)
-
     # desired accuracy
-    epsilon = 0.00001
+    epsilon = 0.0000001
     # max iteration
-    num_iterations = 100
+    num_iterations = 10000  # 100 isn't enough
 
     # train
     for i in range(num_iterations):
@@ -94,12 +96,13 @@ if __name__ == '__main__':
         # check that its approaching 0 (where min occurs)
         current_loss = sess.run(loss, feed_dict=tf_dict)
         current_loss_diff = abs(current_loss - prev_loss)
+        print('current loss =', current_loss)
         print('current loss difference =', current_loss_diff)
-        if current_loss_diff < epsilon:
-            print("\nDesired accuracy reached !! Woop!")
-            break
+
 
     plt.plot(train_X, train_Y, 'ro', label='Training data')
-    plt.plot(train_X, y_pred_tf, 'green', label='Approximation')
-
+    plt.plot(train_X, sess.run(y_pred_tf, feed_dict=tf_dict), 'g*', label='Approximation')
+    # ^ learns low frequencies first, then higher
+    plt.legend()
+    plt.show()
     sess.close()
