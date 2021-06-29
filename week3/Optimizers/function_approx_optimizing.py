@@ -7,6 +7,8 @@ if tf.__version__ > "2.0.0":
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 from IPython import embed
 
 
@@ -34,6 +36,22 @@ def network(input_, weights, biases):
 
 
 if __name__ == '__main__':
+
+    # ======================================
+    #   Saving settings
+    # ======================================
+    current_directory = os.getcwd()
+    results_dir = "/Output/"
+    save_results_to = current_directory + results_dir
+    if not os.path.exists(save_results_to):
+        os.makedirs(save_results_to)
+
+    plots_dir = "/Plots/"
+    save_plots_to = current_directory + plots_dir
+    if not os.path.exists(save_plots_to):
+        os.makedirs(save_plots_to)
+
+
     # constants
     X_DIM, LOWER_BOUND = 0, 0
     Y_DIM, UPPER_BOUND = 1, 1
@@ -99,11 +117,18 @@ if __name__ == '__main__':
             print('\n' + ("=" * 30) + " iteration {} ".format(i) + ("=" * 30))
             print('current loss =', current_loss)
             print('current loss difference =', current_loss_diff)
+            plt.title("Approximation vs training data at iteration {}".format(i))
+            plt.plot(train_X, train_Y, 'ro', label='Training data')
+            plt.plot(train_X, sess.run(y_pred_tf, feed_dict=tf_dict), 'g*', label='Approximation')
+            # ^ learns low frequencies first, then higher
+            plt.legend()
+            plt.show()
         if current_loss_diff < epsilon:
             print("\nDesired accuracy reached at iteration {}!! Woop!".format(i))
             break
 
 
+    plt.
     plt.plot(train_X, train_Y, 'ro', label='Training data')
     plt.plot(train_X, sess.run(y_pred_tf, feed_dict=tf_dict), 'g*', label='Approximation')
     # ^ learns low frequencies first, then higher
