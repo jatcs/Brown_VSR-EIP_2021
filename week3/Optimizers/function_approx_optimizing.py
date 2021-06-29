@@ -43,7 +43,7 @@ if __name__ == '__main__':
     #   Saving settings
     # ======================================
     current_directory = os.getcwd()
-    optimizer_to_use = "Gradient_Descent"
+    optimizer_to_use = "Momentum"  # for ease of changing the optimizer + saving directory
     # the parameters that I've found work well for each optimizer
     optimizer_params = {'Momentum':
                             {'Number of Layers': 2, 'Nodes per layer': 75,
@@ -162,7 +162,7 @@ if __name__ == '__main__':
 
     loss_graph_Y = np.array(loss_tracker)
 
-    plt.title("Result Graph")
+    plt.title(optimizer_to_use + " Result Graph")
     plt.plot(train_X, train_Y, 'ro', label='Training data')
     plt.plot(train_X, sess.run(y_pred_tf, feed_dict=tf_dict), 'g*', label='Approximation')
     # ^ learns low frequencies first, then higher
