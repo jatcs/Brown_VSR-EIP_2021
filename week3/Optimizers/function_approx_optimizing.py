@@ -169,10 +169,11 @@ if __name__ == '__main__':
     plt.legend()
     plt.savefig(save_plots_to + optimizer_to_use + '_result_final.png')
     plt.show()
+
     plt.title("Loss over every {}th iteration for {} Optimizer".format(NTH_ITER, optimizer_to_use))
     plt.xlabel('iteration')
     plt.ylabel('loss')
-    plt.plot(loss_graph_X, loss_graph_Y, 'orange')
+    plt.semilogy(loss_graph_X, loss_graph_Y, 'orange')  # use log scale to show finer details
     plt.savefig(save_plots_to + optimizer_to_use + '_loss_graph.png')
     plt.show()
     sess.close()
