@@ -8,8 +8,18 @@ Week 1 (6/8/2021-6/14/2021)
 - Assignment 3: Learn Tensorboard (visualizer)
 - Assignment 4: Train your deep O net to do something else
 
-Week 2 (6/15/2021)
-- contine learning about deep O and tensorboard
+Week 2 (6/15/2021 - 6/21/2021)
+- continue learning about deep O and tensorboard
 - Assignment: function approximation (Dr. Karniadakis will send it)
     - learn fourier transform
         - useful to check if the NN is learning small frequencies
+
+Week 3 (6/22/2021 - 6/28/2021)
+- compare parameterization for different optimizers
+  + learn about fourier transform (provides insight into which frequencies NNs learn first)
+        - finding = low frequencies (higher energy / magnitude) are learned first = spectral bias
+
+
+Week 4 (6/29/2021 - )
+- scale up function approximation to use images for target function
+    + use more than 1 input for the function (i.e. f(x,y))
