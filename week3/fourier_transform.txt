@@ -14,3 +14,8 @@ use np.fft.fft (takes in discrete values)
 
 - read up on fourier transform, optimizers, why NN learns how it does
     - PINN (physics informed NN)
+
+- fourier transform identifies the frequencies in a graph
+    => can identify the individual waves that were summed together to make that graph
+    - if you take the fourier transform every nth iteration
+        -> you can see which frequencies are being learned when
