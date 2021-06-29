@@ -43,7 +43,7 @@ if __name__ == '__main__':
     #   Saving settings
     # ======================================
     current_directory = os.getcwd()
-    optimizer_to_use = "Momentum"  # for ease of changing the optimizer + saving directory
+    optimizer_to_use = "ADAM"  # for ease of changing the optimizer + saving directory
     # the parameters that I've found work well for each optimizer
     optimizer_params = {'Momentum':
                             {'Number of Layers': 2, 'Nodes per layer': 75,
@@ -149,9 +149,9 @@ if __name__ == '__main__':
             plt.legend()
 
             plt.savefig(save_plots_to + optimizer_to_use + '_result_step_%d.png' % i)
+            plt.show()
             plt.clf()
 
-            # plt.show()
             loss_tracker.append(current_loss)
 
         """
