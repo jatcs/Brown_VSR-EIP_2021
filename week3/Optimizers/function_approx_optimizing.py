@@ -43,10 +43,18 @@ if __name__ == '__main__':
     #   Saving settings
     # ======================================
     current_directory = os.getcwd()
-    optimizer_to_use = "Momentum"
+    optimizer_to_use = "Gradient_Descent"
+    # the parameters that I've found work well for each optimizer
     optimizer_params = {'Momentum':
                             {'Number of Layers': 2, 'Nodes per layer': 75,
-                             'Learning Rate': 1e-1}}
+                             'Learning Rate': 1e-1},
+                        'Gradient_Descent':
+                            {'Number of Layers': 2, 'Nodes per layer': 60,
+                             'Learning Rate': 1e-1},
+                        'ADAM':
+                            {'Number of Layers': 2, 'Nodes per layer': 45,
+                             'Learning Rate': 1e-3}
+                        }
     results_dir = "/Output/"
     save_results_to = current_directory + results_dir + optimizer_to_use + '/'
     if not os.path.exists(save_results_to):
@@ -96,8 +104,14 @@ if __name__ == '__main__':
     # node operations
     y_pred_tf = network(x_tf, W, b)
     loss = tf.reduce_mean(tf.square(y_pred_tf - y_tf))
+    train = None  # placeholder for the training optimizer (so its available outside of if's scope)
 
-    train = tf.train.MomentumOptimizer(learning_rate, momentum=0.0625).minimize(loss)
+    if optimizer_to_use == 'Gradient_Descent':
+        train = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss)
+    elif optimizer_to_use == 'Momentum':
+        train = tf.train.MomentumOptimizer(learning_rate, momentum=0.0625).minimize(loss)
+    elif optimizer_to_use == 'ADAM':
+        train = tf.train.AdamOptimizer(learning_rate).minimize(loss)
 
     # must be after graph initialization
     sess = tf.Session()
@@ -134,10 +148,10 @@ if __name__ == '__main__':
             # ^ learns low frequencies first, then higher
             plt.legend()
 
-            plt.savefig(save_plots_to + 'result_step_%d.png' % i)
+            plt.savefig(save_plots_to + optimizer_to_use + '_result_step_%d.png' % i)
             plt.clf()
 
-            plt.show()
+            # plt.show()
             loss_tracker.append(current_loss)
 
         """
@@ -153,11 +167,12 @@ if __name__ == '__main__':
     plt.plot(train_X, sess.run(y_pred_tf, feed_dict=tf_dict), 'g*', label='Approximation')
     # ^ learns low frequencies first, then higher
     plt.legend()
-    plt.show()
     plt.savefig(save_plots_to + optimizer_to_use + '_result_final.png')
+    plt.show()
     plt.title("Loss over every {}th iteration for {} Optimizer".format(NTH_ITER, optimizer_to_use))
     plt.xlabel('iteration')
     plt.ylabel('loss')
     plt.plot(loss_graph_X, loss_graph_Y, 'orange')
-    plt.savefig(save_plots_to + 'loss_graph.png')
+    plt.savefig(save_plots_to + optimizer_to_use + '_loss_graph.png')
+    plt.show()
     sess.close()
