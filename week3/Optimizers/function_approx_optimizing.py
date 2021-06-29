@@ -1,15 +1,17 @@
 # week 2/3 assignment - test out effectiveness of different parameters and optimizers
 # Jessica Turner
 import tensorflow as tf
+
 if tf.__version__ > "2.0.0":
     import tensorflow.compat.v1 as tf
+
     tf.disable_v2_behavior()
 import numpy as np
 import math
 import matplotlib.pyplot as plt
 import os
+
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-from IPython import embed
 
 
 def function_target(x):
@@ -41,16 +43,19 @@ if __name__ == '__main__':
     #   Saving settings
     # ======================================
     current_directory = os.getcwd()
+    optimizer_to_use = "Momentum"
+    optimizer_params = {'Momentum':
+                            {'Number of Layers': 2, 'Nodes per layer': 75,
+                             'Learning Rate': 1e-1}}
     results_dir = "/Output/"
-    save_results_to = current_directory + results_dir
+    save_results_to = current_directory + results_dir + optimizer_to_use + '/'
     if not os.path.exists(save_results_to):
         os.makedirs(save_results_to)
 
     plots_dir = "/Plots/"
-    save_plots_to = current_directory + plots_dir
+    save_plots_to = current_directory + plots_dir + optimizer_to_use + '/'
     if not os.path.exists(save_plots_to):
         os.makedirs(save_plots_to)
-
 
     # constants
     X_DIM, LOWER_BOUND = 0, 0
@@ -58,7 +63,8 @@ if __name__ == '__main__':
     # initialize training set
     num_points = 100
     domain = (-1 * math.pi, math.pi)
-    train_X = np.asarray(((domain[UPPER_BOUND] - domain[LOWER_BOUND]) * np.random.random_sample(num_points)) + domain[LOWER_BOUND])
+    train_X = np.asarray(
+        ((domain[UPPER_BOUND] - domain[LOWER_BOUND]) * np.random.random_sample(num_points)) + domain[LOWER_BOUND])
     train_Y = np.asarray([function_target(x) for x in train_X])
 
     train_X = train_X.reshape(-1, 1)
@@ -67,8 +73,15 @@ if __name__ == '__main__':
     # details for model size
     num_inputs = 1
     num_outputs = 1
-    num_layers = 2
-    num_nodes = 75
+    # desired accuracy
+    epsilon = 0.00000001
+    # max iteration
+    num_iterations = 100000  # 100 isn't enough
+
+    # parameters
+    num_layers = optimizer_params[optimizer_to_use]['Number of Layers']
+    num_nodes = optimizer_params[optimizer_to_use]['Nodes per layer']
+    learning_rate = optimizer_params[optimizer_to_use]['Learning Rate']
 
     # input and output nodes
     x_tf = tf.placeholder(dtype=tf.float64, name="X", shape=[None, 1])
@@ -84,19 +97,17 @@ if __name__ == '__main__':
     y_pred_tf = network(x_tf, W, b)
     loss = tf.reduce_mean(tf.square(y_pred_tf - y_tf))
 
-    learning_rate = 1e-1
     train = tf.train.MomentumOptimizer(learning_rate, momentum=0.0625).minimize(loss)
 
     # must be after graph initialization
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
 
-    # desired accuracy
-    epsilon = 0.00000001
-    # max iteration
-    num_iterations = 100000  # 100 isn't enough
-
     # train
+    loss_tracker = []
+    NTH_ITER = 1000
+    loss_graph_X = np.linspace(0, num_iterations, int(num_iterations / NTH_ITER), dtype=int)
+    loss_graph_X = np.reshape(loss_graph_X, (-1, 1))
     for i in range(num_iterations):
 
         # dictionary feeding to the graph
@@ -113,7 +124,7 @@ if __name__ == '__main__':
         # check that its approaching 0 (where min occurs)
         current_loss = sess.run(loss, feed_dict=tf_dict)
         current_loss_diff = abs(current_loss - prev_loss)
-        if i % 1000 == 0:
+        if i % NTH_ITER == 0:
             print('\n' + ("=" * 30) + " iteration {} ".format(i) + ("=" * 30))
             print('current loss =', current_loss)
             print('current loss difference =', current_loss_diff)
@@ -122,16 +133,31 @@ if __name__ == '__main__':
             plt.plot(train_X, sess.run(y_pred_tf, feed_dict=tf_dict), 'g*', label='Approximation')
             # ^ learns low frequencies first, then higher
             plt.legend()
+
+            plt.savefig(save_plots_to + 'result_step_%d.png' % i)
+            plt.clf()
+
             plt.show()
+            loss_tracker.append(current_loss)
+
+        """
         if current_loss_diff < epsilon:
             print("\nDesired accuracy reached at iteration {}!! Woop!".format(i))
             break
+        """
 
+    loss_graph_Y = np.array(loss_tracker)
 
-    plt.
+    plt.title("Result Graph")
     plt.plot(train_X, train_Y, 'ro', label='Training data')
     plt.plot(train_X, sess.run(y_pred_tf, feed_dict=tf_dict), 'g*', label='Approximation')
     # ^ learns low frequencies first, then higher
     plt.legend()
     plt.show()
+    plt.savefig(save_plots_to + optimizer_to_use + '_result_final.png')
+    plt.title("Loss over every {}th iteration for {} Optimizer".format(NTH_ITER, optimizer_to_use))
+    plt.xlabel('iteration')
+    plt.ylabel('loss')
+    plt.plot(loss_graph_X, loss_graph_Y, 'orange')
+    plt.savefig(save_plots_to + 'loss_graph.png')
     sess.close()
