@@ -1,0 +1,31 @@
+7/9/2021
+- reason for using sugarcane.png
+    - each row is like a sin wave (frequency wise)
+    - easier to use one color channel (greyscale)
+        - x,y -> I (0 - 1) intensity
+        if use RGB => output would be 3 variables
+- fourier modes (main)
+    - only plot subdomain because its almost 0 everywhere else
+- effectiveness <=> parameters
+    - learning rate, number of training points
+    - image training requires more iterations to learn
+- learned NN learns lower frequencies first then higher
+- can add text directly on figure using
+    plt.text(x_cord, y_cord, txt)
+- PSNR - evaluate error - difference between images
+    - metric - higher = better (for MSE)
+    - peak signal to noise ratio <-> mean squared error (difference should be as small as possible usually)
+        - but since MSE is in denom, its better for it to be large
+
+
+next steps:
+- apply 2d fourier transform on other images
+- next Tuesday ask Dr. Karniadakis for next steps
+- can think of applications to try CNN
+    - input: noisy image, output: smooth image
+        ^ all pixel values
+- try using image as an input - 256 inputs
+    - 1 column, 256 rows matrix
+- know our network architecture is pretty much like DIY keras dense Sequential layers
+- summarize results from trying these techniques on other images
+    -> make presentation to give on Tuesday
