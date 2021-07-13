@@ -12,7 +12,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from PIL import Image                       # Python Imaging Library
-
+import os
 
 # ======================================
 #   Neural network
@@ -50,7 +50,24 @@ def PSNR(original, approximated):
 # ======================================
 #   Main
 # ======================================
-im1 = Image.open("sugarcane.png")
+
+# ======================================
+#   Saving settings
+# ======================================
+current_directory = os.getcwd()
+
+results_dir = "/Output/"
+save_results_to = current_directory + results_dir
+if not os.path.exists(save_results_to):
+    os.makedirs(save_results_to)
+
+plots_dir = "/Plots/"
+save_plots_to = current_directory + plots_dir
+if not os.path.exists(save_plots_to):
+    os.makedirs(save_plots_to)
+
+image_name = input('What is the file name for your image?\n')
+im1 = Image.open(image_name)
 im1 = im1.convert('L')                     # 'L' for gray scale mode
 H, W = im1.size
 newsize = (H//4, W//4)
@@ -89,6 +106,8 @@ ax = fig.add_subplot(1, 2, 2)
 img = plt.imshow(P_ref[54:75,54:75], extent=[-10,10,-10,10] , cmap="jet")
 fig.colorbar(img, shrink=0.5, aspect=10, label='Intensity') # label='Intensity'
 plt.title("Fourier modes (main)")
+# label fig with image name
+plt.savefig(save_plots_to + image_name[0: -4] + '_Image_Approx_Fourier_Modes.png')
 plt.show()
 
 
@@ -174,6 +193,8 @@ while n <= nmax:
         
         # save plots here if needed
         # -------------------------
+        plt.savefig(save_plots_to + image_name[0: -4] +
+                    '_Fourier_Approx_Iteration_{}.png'.format(n))
         plt.show()
         
         # plot the original and reconstructed images if needed
@@ -202,6 +223,7 @@ ax = fig.add_subplot(1, 2, 2)
 img = ax.imshow(y_pred_grid, cmap="gray")
 fig.colorbar(img, shrink=0.5, aspect=10)
 plt.title("Approximated image")
+plt.savefig(save_plots_to + image_name[0:-4] + '_Final_Approx.png')
 plt.show()
 
 
