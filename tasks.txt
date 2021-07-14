@@ -32,3 +32,11 @@ Week 5
         - use mathematics, take X-Ray of NN - see how NN learns
             - start w 1D example, finish with image processing example (2D)
 - try the 2D transform on other images
+
+
+Week 6
+- train a DNN on png + compressed images
+    - compare if accuracy post training is the same
+        + number of iterations taken to reach desired accuracy
+    - look in fourier domain
+        - see if learning process occurs the same way each time

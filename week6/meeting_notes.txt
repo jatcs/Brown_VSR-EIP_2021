@@ -1,0 +1,50 @@
+features are localized in fourier domain
+
+- can try biomed next week
+can try taking images from eye aneurisms - from harvard med
+    - eyes from people that have diabetes
+        - their eyes are very red - red blood cells ballooning -> blindness
+    - want to identify these features in the image
+        - stagmentation, microaneurism
+
+
+   - can also try on sickle cell data
+        - see misshaped (sickle) blood cells
+        - can look at fourier signatures that these features leave
+        (look at these images in fourier domain)
+
+
+- image compression (1st)
+    - try to learn on full features + compressed features
+    - contrast original + compressed fourier signatures
+
+    - compare how much faster net learns compressed vs original
+    - compression is basically removing high frequencies in fourier domain
+    - image -> compress at certain ratio (i.e. 5:1)
+                -> compress at different ratios to compare if net can still learn small features (compare reconstructed image)
+                    - keep track of loss + how fast networks can work on different compression ratios
+
+
+focus: x-ray on 1D, 2D, see what features are learned
+    -> how use?
+        -> represent image with fourier transform
+            - more localized
+            - can see what features are present in an image
+                (like decompose music into its notes)
+            - once done approx in fourier space, ifft -> get og format
+                - can compute loss in fourier domain or original (use ifft to get it back)
+            - NN can learn features in fourier space
+                - maybe faster
+                - see what features are learned
+
+
+- keep track of loss, take xray on more steps
+- original domain -> fft -> fourier domain
+    - can do reverse to get approx in original domain
+
+"the f principle" - spectral bias paper
+https://arxiv.org/pdf/1901.06523.pdf
+^ pretty much what we are doing
+
+
+Fourier Transform: Insight into How Neural Networks Learn
