@@ -80,6 +80,10 @@ def plot_images_and_fft(images_dict, image_size=(128,128), num_rows=3, num_cols=
         F = np.fft.fft2(f_grid) / (image_size[0] * image_size[1] * fig_aspect)  # np.fft.fft2(f_grid) / (128 * 128 / 2)
         F = np.fft.fftshift(F)
         P_ref = np.abs(F)
+
+        # truncate Fourier Coefficients
+        P_ref.sort()
+        P_ref = P_ref[0:(len(P_ref) // 3) * 2]  # use a fraction of the low frequencies
         # use negative values for map space so we can see symmetry across x-y axis
         img = image_compare_axes.ravel()[fft_all_modes_plot_placement].imshow(
             P_ref, extent=[-image_size[0] // 2, image_size[0] // 2, -image_size[1] // 2, image_size[1] // 2], cmap="jet")
@@ -127,7 +131,8 @@ if __name__ == '__main__':
     # ================================================================================================
     picture_name = 'Stinkbug.png'  # input('Enter the name of the picture file: ')
     picture_path = os.path.join(current_directory, picture_name)
-    pic_quality = 0.001  # float(input('Enter the desired picture quality to compress to (0 (worst) - 100 (best)): '))
+    pic_quality = 0.001  # 2:1  # float(input('Enter the desired picture quality to compress to (0 (worst) - 100 (best)): '))
+    # want degree of compression => amount of features retained => computation speed gained
     exclude_extension = -4  # for slicing (only including the name of the file of .png images)
 
     original_image = Image.open(picture_path)

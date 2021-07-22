@@ -73,7 +73,7 @@ save_plots_to = current_directory + plots_dir
 if not os.path.exists(save_plots_to):
     os.makedirs(save_plots_to)
 
-image_name = input('What is the file name for your image?\n')
+image_name = 'sugarcane.png'  # input('What is the file name for your image?\n')
 im1 = Image.open(image_name)
 im1 = im1.convert('L')  # 'L' for gray scale mode
 H, W = im1.size
@@ -167,7 +167,7 @@ while n <= nmax:
     if n == 1 or n % 100 == 0:
         print('Steps: %d, loss: %.3e' % (n, loss_))
 
-    if n == 1 or n % (nmax // 5) == 0:
+    if n == 1 or n % (nmax // 100) == 0:
         y_pred_ = sess.run(y_pred, feed_dict={x_train: np.hstack((X1_grid.reshape(-1, 1), X2_grid.reshape(-1, 1)))})
         y_pred_grid = y_pred_.reshape(f_grid.shape[0], -1)
 
@@ -175,26 +175,41 @@ while n <= nmax:
         F_pred = np.fft.fftshift(F_pred)
         P_pred = np.abs(F_pred)
 
-        fig = plt.figure(figsize=plt.figaspect(0.5))
-        ax = fig.add_subplot(1, 2, 1)
+        fig, axs = plt.subplots(2, 2, figsize=plt.figaspect(0.5))
+        # fig = plt.figure(figsize=plt.figaspect(0.5))
+        # ax = fig.add_subplot(1, 2, 1)
         # only show the first few modes
-        img = plt.imshow(P_ref[54:75, 54:75], extent=[-10, 10, -10, 10], cmap="jet")
-        fig.colorbar(img, shrink=0.5, aspect=10)
-        plt.title("Fourier modes (reference)")
-        ax = fig.add_subplot(1, 2, 2)
+        img = axs[0, 0].imshow(P_ref[54:75, 54:75], extent=[-10, 10, -10, 10], cmap="jet")
+        fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 0])
+        axs[0, 0].set_title("Fourier modes (reference)", loc='center', wrap=True)
+        # ax = fig.add_subplot(1, 2, 2)
         # only show the first few modes
-        img = plt.imshow(P_pred[54:75, 54:75], extent=[-10, 10, -10, 10], cmap="jet")
-        fig.colorbar(img, shrink=0.5, aspect=10)
-        plt.title("Fourier modes (network)")
+        img = axs[0, 1].imshow(P_pred[54:75, 54:75], extent=[-10, 10, -10, 10], cmap="jet")
+        fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 1])
+        axs[0, 1].set_title("Fourier modes (network)", loc='center', wrap=True)
 
+
+        # plot the original and reconstructed images if needed
+        # -------------------------
+        # ax = fig.add_subplot(2, 2, 2)
+
+        img = axs[1, 0].imshow(f_grid, cmap="gray")
+        fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[1, 0])
+        axs[1, 0].set_title("Target Image (Reference)", loc='center', wrap=True)
+
+        y_pred_ = sess.run(y_pred, feed_dict={x_train: np.hstack((X1_grid.reshape(-1, 1), X2_grid.reshape(-1, 1)))})
+        y_pred_grid = y_pred_.reshape(f_grid.shape[0], -1)
+        img = axs[1, 1].imshow(y_pred_grid, cmap="gray")
+        fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[1, 1])
+        axs[1, 1].set_title("Approximated image at Iteration {}".format(n), loc='center', wrap=True)
+
+        plt.tight_layout()
         # save plots here if needed
         # -------------------------
         plt.savefig(save_plots_to + image_name[0: -4] +
                     '_Fourier_Approx_Iteration_{}.png'.format(n))
         plt.show()
 
-        # plot the original and reconstructed images if needed
-        # -------------------------
 
 # ======================================
 #   Plot the final result
