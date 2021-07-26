@@ -87,7 +87,7 @@ plt.show()
 # representing the image as a 2D function in [0,1]x[0,1]
 x1_grid = np.linspace(0, 1, np.min(newsize))
 x2_grid = np.linspace(0, 1, np.min(newsize))
-X1_grid, X2_grid = np.meshgrid(x1_grid, x2_grid)
+\P_, X2_grid = np.meshgrid(x1_grid, x2_grid)
 f_grid = np.asarray(im1, dtype=np.float32)
 # f_grid = f_grid / np.max(f_grid)
 f_grid = f_grid / np.max(f_grid) * 2. - 1

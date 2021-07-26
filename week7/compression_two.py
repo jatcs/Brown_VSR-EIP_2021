@@ -20,18 +20,19 @@ def sort_high_low(a_list):
     elif len(a_list) == 1:
         return a_list
 
-    ret_list = []
-    # put all the high numbers in the front
+    # put all the high numbers in the front by just
+    # taking out the max, putting it at the front and
+    # rerunning on max-removed list
     curr_max = max(a_list)
     max_index = a_list.index(curr_max)
-    if max_index == len(a_list) - 1:
-        ret_list = a_list[0: max_index]
-    else:
-        ret_list = a_list[0: max_index] + a_list[max_index + 1: len(a_list)]
+    ret_list = a_list[0: max_index]
+    # bounds check (if the max index is at the end of the list or not (add extra terms as needed))
+    if max_index != len(a_list) - 1:
+        ret_list += a_list[max_index + 1: len(a_list)]
+
     return [curr_max] + sort_high_low(ret_list)
 
 
-"""
 # ==========================================
 # Saving Settings
 # ==========================================
@@ -61,7 +62,8 @@ compressed_image = Image.open('compressed_{}.png'.format(image_name[0:exclude_ex
 # ==========================================================
 # Plot both images and their fourier modes to see differences
 # ===========================================================
-fig, axs = plt.subplots(2, 1, figsize=plt.figaspect(0.5))
+fig_aspect = 0.5
+fig, axs = plt.subplots(2, 1, figsize=plt.figaspect(fig_aspect))
 axs[0].imshow(target_image)
 axs[0].set_title('Starting image', loc='center')
 axs[1].imshow(compressed_image)
@@ -71,10 +73,49 @@ plt.tight_layout()
 
 plt.savefig(save_plots_to + image_name[0: exclude_extension] + '_target_compressed.png')
 plt.show()
-"""
-ex = list(np.random.randint(5, size=10))
-print(ex)
-sorted_ex = sort_high_low(ex)
-print(sorted_ex)
+
+# try manually compressing by removing high frequencies
+f_grid = np.asarray(target_image, dtype=np.float32)
+image_size = f_grid.shape
+f_grid = f_grid / np.max(f_grid) * 2. - 1
+
+# ======================================
+#   FFT 2D and display
+# ======================================
+F = np.fft.fft2(f_grid) / (image_size[0] * image_size[1] * fig_aspect)  # np.fft.fft2(f_grid) / (128 * 128 / 2)
+F = np.fft.fftshift(F)
+P_ref = np.abs(F)
+og_shape = P_ref.shape
+temp = list(P_ref.reshape(-1,))
+temp.sort(reverse=True)
+
+# take out highest few frequencies
+amount_to_remove = len(temp) // 4
+temp_max = max(temp[amount_to_remove:])
+temp = amount_to_remove * [temp_max] + temp[amount_to_remove:]
+temp.sort()
+P_ref = np.asarray(temp)
+# P_ref = P_ref.reshape(len(temp) - amount_to_remove, og_shape[1], og_shape[2])
+P_ref = P_ref.reshape(og_shape)
+
+fig = plt.figure(figsize=plt.figaspect(0.5))
+ax = fig.add_subplot(1, 2, 1)
+# use negative values for map space so we can see symmetry across x-y axis
+img = plt.imshow(P_ref, extent=[-10, 10, -10, 10],
+                 cmap="jet")
+fig.colorbar(img, shrink=0.5, aspect=10, label='Intensity')
+plt.title("Compressed FFT")
+
+ax = fig.add_subplot(1, 2, 2)
+# only show the first few modes
+iF = np.fft.ifft2(P_ref).real
+img = plt.imshow(iF, extent=[-image_size[0] // 2, image_size[0] // 2, -image_size[1] // 2, image_size[1] // 2],
+                 cmap="jet")
+fig.colorbar(img, shrink=0.5, aspect=10)
+plt.title("Reconstructed Image")
+# label fig with image name
+plt.savefig(save_plots_to + image_name[0: exclude_extension] + '_Compressed_Fourier_Modes.png')
+plt.show()
+
 
 embed()
