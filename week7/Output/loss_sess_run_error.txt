@@ -1,0 +1,60 @@
+Incompatible shapes: [34969,45] vs. [2,1]
+	      [[node gradients/Add_grad/BroadcastGradientArgs (defined at Users/Jessica/Dropbox/My Mac (MacBook Air)/Desktop/Research/Brown_Applied_Math_REU_Summer2021/VSR-EIP Repo/week7/image_compression.py:140) ]]
+
+Original stack trace for 'gradients/Add_grad/BroadcastGradientArgs':
+  File "Applications/PyCharm.app/Contents/plugins/python/helpers/pydev/pydevd.py", line 2167, in <module>
+      main()
+        File "Applications/PyCharm.app/Contents/plugins/python/helpers/pydev/pydevd.py", line 2158, in main
+	    globals = debugger.run(setup['file'], None, None, is_module)
+	      File "Applications/PyCharm.app/Contents/plugins/python/helpers/pydev/pydevd.py", line 1470, in run
+	          return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+		    File "Applications/PyCharm.app/Contents/plugins/python/helpers/pydev/pydevd.py", line 1477, in _exec
+		        pydev_imports.execfile(file, globals, locals)  # execute the script
+			  File "Applications/PyCharm.app/Contents/plugins/python/helpers/pydev/_pydev_imps/_pydev_execfile.py", line 18, in execfile
+			      exec(compile(contents+"\n", file, 'exec'), glob, loc)
+			        File "Users/Jessica/Dropbox/My Mac (MacBook Air)/Desktop/Research/Brown_Applied_Math_REU_Summer2021/VSR-EIP Repo/week7/image_compression.py", line 140, in <module>
+				    train = tf.train.AdamOptimizer(learning_rate).minimize(loss)
+				      File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/training/optimizer.py", line 407, in minimize
+				          grads_and_vars = self.compute_gradients(
+					    File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/training/optimizer.py", line 516, in compute_gradients
+					        grads = gradients.gradients(
+						  File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/ops/gradients_impl.py", line 169, in gradients
+						      return gradients_util._GradientsHelper(
+						        File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/ops/gradients_util.py", line 681, in _GradientsHelper
+							    in_grads = _MaybeCompile(grad_scope, op, func_call,
+							      File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/ops/gradients_util.py", line 338, in _MaybeCompile
+							          return grad_fn()  # Exit early
+								    File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/ops/gradients_util.py", line 682, in <lambda>
+								        lambda: grad_fn(op, *out_grads))
+									  File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/ops/math_grad.py", line 1298, in _AddGrad
+									      SmartBroadcastGradientArgs(x, y, grad))
+									        File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/ops/math_grad.py", line 109, in SmartBroadcastGradientArgs
+										    rx, ry = gen_array_ops.broadcast_gradient_args(sx, sy)
+										      File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/ops/gen_array_ops.py", line 749, in broadcast_gradient_args
+										          _, _, _op, _outputs = _op_def_library._apply_op_helper(
+											    File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/framework/op_def_library.py", line 748, in _apply_op_helper
+											        op = g._create_op_internal(op_type_name, inputs, dtypes=None,
+												  File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/framework/ops.py", line 3557, in _create_op_internal
+												      ret = Operation(
+												        File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/framework/ops.py", line 2045, in __init__
+													    self._traceback = tf_stack.extract_stack_for_node(self._c_op)
+
+...which was originally created as op 'Add', defined at:
+  File "Applications/PyCharm.app/Contents/plugins/python/helpers/pydev/pydevd.py", line 2167, in <module>
+      main()
+      [elided 3 identical lines from previous traceback]
+        File "Applications/PyCharm.app/Contents/plugins/python/helpers/pydev/_pydev_imps/_pydev_execfile.py", line 18, in execfile
+	    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+	      File "Users/Jessica/Dropbox/My Mac (MacBook Air)/Desktop/Research/Brown_Applied_Math_REU_Summer2021/VSR-EIP Repo/week7/image_compression.py", line 133, in <module>
+	          y_pred = Deep_NN(x_train, W, B)
+		    File "Users/Jessica/Dropbox/My Mac (MacBook Air)/Desktop/Research/Brown_Applied_Math_REU_Summer2021/VSR-EIP Repo/week7/image_compression.py", line 50, in Deep_NN
+		        A = tf.sin(tf.add(tf.matmul(A, W[i]), B[i]))
+			  File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/ops/gen_math_ops.py", line 395, in add
+			      _, _, _op, _outputs = _op_def_library._apply_op_helper(
+			        File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/framework/op_def_library.py", line 748, in _apply_op_helper
+				    op = g._create_op_internal(op_type_name, inputs, dtypes=None,
+				      File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/framework/ops.py", line 3557, in _create_op_internal
+				          ret = Operation(
+					    File "Users/Jessica/Library/Python/3.8/lib/python/site-packages/tensorflow/python/framework/ops.py", line 2045, in __init__
+					        self._traceback = tf_stack.extract_stack_for_node(self._c_op)
+						

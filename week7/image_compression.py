@@ -104,7 +104,7 @@ net_conn = [num_inputs] + num_layers * [nodes_per_layer] + [num_outputs]
 # set weights and biases of hidden layers
 #                       num inputs,       num_outputs
 W = [initialize_params([net_conn[i - 1], net_conn[i]]) for i in range(1, len(net_conn))]
-B = [initialize_params([net_conn[i], 1]) for i in range(len(net_conn))]
+B = [initialize_params([1, net_conn[i]]) for i in range(1, len(net_conn))]
 
 # for plots
 x1_grid = np.linspace(0, 1, np.min(newsize))
@@ -143,55 +143,84 @@ train = tf.train.AdamOptimizer(learning_rate).minimize(loss)
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-max_iterations = 50000
+max_iterations = 100000
 #           key = image name, value = list of the loss calculations for that image's network approximation
 images_dict = {'image_compressed_01': image_compressed_01,
                'image_compressed_03': image_compressed_03,
                'image_compressed_005': image_compressed_005}
 loss_dict = {'image_compressed_01': [], 'image_compressed_03': [], 'image_compressed_005': []}
+
 for image_name in images_dict.keys():
-    img = images_dict[image_name]
-    F = np.fft.fft2(img) / (img.shape[0] * img.shape[1] / 2)
+    the_image = images_dict[image_name]
+    F = np.fft.fft2(the_image) / (the_image.shape[0] * the_image.shape[1] / 2)
     F = np.fft.fftshift(F)
     P_ref = np.abs(F)
-    for n in range(max_iterations):
-        try:
-            loss_, _ = sess.run([loss, train], feed_dict={x_train: np.hstack((X1_grid.reshape(-1, 1),
-                                                                              X2_grid.reshape(-1, 1))),
-                                                          y_train: f})
-        except Exception as inst:
-            pass  # so I can view the error message easier
+    f_grid = np.asarray(images_dict[image_name], dtype=np.float32)
+    f = f_grid.reshape(-1, 1)
+    for n in range(1, max_iterations):
 
+        loss_, _ = sess.run([loss, train], feed_dict={x_train: np.hstack((X1_grid.reshape(-1, 1),
+                                                                          X2_grid.reshape(-1, 1))),
+                                                      y_train: f})
 
-        loss_dict[image_name].append(loss_)
         if n == 1 or n % 100 == 0:
+            loss_dict[image_name].append(loss_)
             print('Steps: %d, loss: %.3e' % (n, loss_))
 
-        if n == 1 or n % (max_iterations // 5) == 0:
+        if n == 1 or n % (max_iterations // 20) == 0:
             y_pred_ = sess.run(y_pred, feed_dict={x_train: np.hstack((X1_grid.reshape(-1, 1),
                                                                       X2_grid.reshape(-1, 1)))})
             y_pred_grid = y_pred_.reshape(f_grid.shape[0], -1)
 
-            F_pred = np.fft.fft2(y_pred_grid) / (128 * 128 / 2)
+            F_pred = np.fft.fft2(y_pred_grid) / (the_image.shape[0] * the_image.shape[1] / 2)
             F_pred = np.fft.fftshift(F_pred)
             P_pred = np.abs(F_pred)
 
-            fig = plt.figure(figsize=plt.figaspect(0.5))
-            ax = fig.add_subplot(1, 2, 1)
+            fig, axs = plt.subplots(3, 2, figsize=plt.figaspect(0.5))
+            # fig = plt.figure(figsize=plt.figaspect(0.5))
+            # ax = fig.add_subplot(1, 2, 1)
             # only show the first few modes
-            img = plt.imshow(P_ref[54:75, 54:75], extent=[-10, 10, -10, 10], cmap="jet")
-            fig.colorbar(img, shrink=0.5, aspect=10)
-            plt.title("Fourier modes Reference {}".format(image_name))
-            ax = fig.add_subplot(1, 2, 2)
+            img = axs[0, 0].imshow(P_ref[54:75, 54:75], extent=[-10, 10, -10, 10], cmap="jet")
+            fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 0])
+            axs[0, 0].set_title("Fourier modes Reference {}".format(image_name))
+            # ax = fig.add_subplot(1, 2, 2)
             # only show the first few modes
-            img = plt.imshow(P_pred[54:75, 54:75], extent=[-10, 10, -10, 10], cmap="jet")
-            fig.colorbar(img, shrink=0.5, aspect=10)
-            plt.title("Fourier modes (network)")
+            img = axs[0, 1].imshow(P_pred[54:75, 54:75], extent=[-10, 10, -10, 10], cmap="jet")
+            fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 1])
+            axs[0, 1].set_title("Fourier modes (network) at iter {}".format(n))
 
-            # save plots here if needed
-            # -------------------------
+            # show all modes for comparison
+            img = axs[1, 0].imshow(P_ref, extent=[-10, 10, -10, 10], cmap="jet")
+            fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 0])
+            axs[1, 0].set_title("All Fourier modes Reference {}".format(image_name))
+            # ax = fig.add_subplot(1, 2, 2)
+            # only show the first few modes
+            # [-the_image.shape[0] // 2, the_image.shape[0] // 2,
+            #                                                    -the_image.shape[1] // 2, the_image.shape[0] // 2]
+            img = axs[1, 1].imshow(P_pred, extent=[-10, 10, -10, 10], cmap="jet")
+            fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 1])
+            axs[1, 1].set_title("All Fourier modes (network) at iter {}".format(n))
+
+
+            img = axs[2, 0].imshow(images_dict[image_name], cmap="gray")
+            fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[1, 0])
+            axs[2, 0].set_title("Target Image (Reference) - Compressed {}%".format(float('.' + image_name[-2:]) * 100), loc='center', wrap=True)
+
+
+            img = axs[2, 1].imshow(y_pred_grid, cmap="gray")
+            fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[1, 1])
+            axs[2, 1].set_title("Approximated image at Iteration {}".format(n), loc='center', wrap=True)
+
+            plt.tight_layout()
             plt.savefig(save_plots_to + image_name +
                         '_Fourier_Approx_Iteration_{}.png'.format(n))
             plt.show()
+
+    # save loss outputs
+    np.savetxt(save_output_to + image_name + '_loss.txt', loss_dict[image_name], fmt='%e')
+    plt.semilogy(np.arange(max_iterations / 100), loss_dict[image_name], color='green')
+    plt.title('Loss over time for {}% Compressed Image Training'.format(float('.' + image_name[-2:]) * 100))
+    plt.savefig(save_plots_to + image_name + 'Loss_over_time'.png)
+    plt.show()
 
 embed()
