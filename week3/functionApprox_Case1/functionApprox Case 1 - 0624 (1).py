@@ -165,6 +165,7 @@ if __name__ == "__main__":
             plt.title('Fourier Domain - Frequencies + Intensities Learned')
 
             plt.savefig(save_plots_to + 'result_step_%d.png' % (n))
+            plt.savefig(save_plots_to + 'result_step_%d.eps' % (n))
             plt.clf()
 
             # check convergence

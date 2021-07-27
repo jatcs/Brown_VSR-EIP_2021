@@ -163,6 +163,7 @@ loss_dict = {'original_00': [],
 
 for image_name in images_dict.keys():
     the_image = images_dict[image_name]
+    the_image = the_image - np.mean(the_image)
     F = np.fft.fft2(the_image) / (the_image.shape[0] * the_image.shape[1] / 2)
     F = np.fft.fftshift(F)
     P_ref = np.abs(F)
@@ -191,12 +192,15 @@ for image_name in images_dict.keys():
             # fig = plt.figure(figsize=plt.figaspect(0.5))
             # ax = fig.add_subplot(1, 2, 1)
             # only show the first few modes - most energetic ones
-            img = axs[0, 0].imshow(P_ref[82:107, 82:107], extent=[-30, 30, -30, 30], cmap="jet")
+            P_ref[93, 93] = 0.  # for some reason needs to zero since it shows mean intensity
+            img = axs[0, 0].imshow(P_ref[83:103, 83:103], extent=[-10, 10, -10, 10], cmap="jet")
             fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 0])
             axs[0, 0].set_title("Fourier modes Reference {}".format(image_name))
             # ax = fig.add_subplot(1, 2, 2)
+
             # only show the first few modes
-            img = axs[0, 1].imshow(P_pred[82:107, 82:107], extent=[-30, 30, -30, 30], cmap="jet")
+            P_pred[93, 93] = 0.
+            img = axs[0, 1].imshow(P_pred[83:103, 83:103], extent=[-10, 10, -10, 10], cmap="jet")
             fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 1])
             axs[0, 1].set_title("Fourier modes (network) at iter {}".format(n))
 
