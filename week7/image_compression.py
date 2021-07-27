@@ -54,7 +54,8 @@ def Deep_NN(input_, W, B):
 
     for i in range(n_layers - 1):
         # next activation = Weight * prev_activation + bias -> transformed to within desired range
-        A = tf.nn.relu(tf.add(tf.matmul(A, W[i]), B[i]))
+        A = tf.sin(tf.add(tf.matmul(A, W[i]), B[i]))
+        # can experiment with different activations i.e. tf.nn.relu
 
     # same thing for the last layer except without restricting range
     return tf.add(tf.matmul(A, W[-1]), B[-1])
@@ -190,12 +191,12 @@ for image_name in images_dict.keys():
             # fig = plt.figure(figsize=plt.figaspect(0.5))
             # ax = fig.add_subplot(1, 2, 1)
             # only show the first few modes - most energetic ones
-            img = axs[0, 0].imshow(np.sort(P_ref)[-15:, -15:], extent=[5, 15, -10, -5], cmap="jet")
+            img = axs[0, 0].imshow(P_ref[82:107, 82:107], extent=[-30, 30, -30, 30], cmap="jet")
             fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 0])
             axs[0, 0].set_title("Fourier modes Reference {}".format(image_name))
             # ax = fig.add_subplot(1, 2, 2)
             # only show the first few modes
-            img = axs[0, 1].imshow(np.sort(P_pred)[-15:, -15:], extent=[5, 15, -10, -5], cmap="jet")
+            img = axs[0, 1].imshow(P_pred[82:107, 82:107], extent=[-30, 30, -30, 30], cmap="jet")
             fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 1])
             axs[0, 1].set_title("Fourier modes (network) at iter {}".format(n))
 
