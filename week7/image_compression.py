@@ -38,6 +38,13 @@ image_name = 'Stinkbug.png'
 def initialize_params(var_shape):
     return tf.Variable(tf.random_normal(shape=var_shape, mean=0., stddev=0.05))
 
+# ===================================================
+def xavier_init(size):
+    in_dim = size[0]
+    out_dim = size[1]
+    xavier_stddev = np.sqrt(2/(in_dim + out_dim))
+    return tf.Variable(tf.truncated_normal([in_dim, out_dim], stddev=xavier_stddev), dtype=tf.float32)
+
 
 # network approximation for given inputs
 def Deep_NN(input_, W, B):
@@ -47,7 +54,8 @@ def Deep_NN(input_, W, B):
 
     for i in range(n_layers - 1):
         # next activation = Weight * prev_activation + bias -> transformed to within desired range
-        A = tf.sin(tf.add(tf.matmul(A, W[i]), B[i]))
+        A = tf.nn.relu(tf.add(tf.matmul(A, W[i]), B[i]))
+
     # same thing for the last layer except without restricting range
     return tf.add(tf.matmul(A, W[-1]), B[-1])
 
@@ -95,16 +103,16 @@ image_compressed_005 = compression_fft(resized_og_image, 0.05, is_plot=True)
 # Set up network architecture
 # ==========================
 num_inputs = 2  # for row and column in picture
-num_layers = 1  # number of hidden layers
-nodes_per_layer = 45
+num_layers = 3  # number of hidden layers - add layers -> more expressive
+nodes_per_layer = 20
 num_outputs = 1
 
 # connections between layers in the neural network
 net_conn = [num_inputs] + num_layers * [nodes_per_layer] + [num_outputs]
 # set weights and biases of hidden layers
 #                       num inputs,       num_outputs
-W = [initialize_params([net_conn[i - 1], net_conn[i]]) for i in range(1, len(net_conn))]
-B = [initialize_params([1, net_conn[i]]) for i in range(1, len(net_conn))]
+W = [xavier_init(size=[net_conn[i - 1], net_conn[i]]) for i in range(1, len(net_conn))]
+B = [xavier_init(size=[1, net_conn[i]]) for i in range(1, len(net_conn))]
 
 # for plots
 x1_grid = np.linspace(0, 1, np.min(newsize))
@@ -145,10 +153,12 @@ sess.run(tf.global_variables_initializer())
 
 max_iterations = 100000
 #           key = image name, value = list of the loss calculations for that image's network approximation
-images_dict = {'image_compressed_01': image_compressed_01,
+images_dict = {'original_00': resized_og_image,
+                'image_compressed_01': image_compressed_01,
                'image_compressed_03': image_compressed_03,
                'image_compressed_005': image_compressed_005}
-loss_dict = {'image_compressed_01': [], 'image_compressed_03': [], 'image_compressed_005': []}
+loss_dict = {'original_00': [],
+    'image_compressed_01': [], 'image_compressed_03': [], 'image_compressed_005': []}
 
 for image_name in images_dict.keys():
     the_image = images_dict[image_name]
@@ -180,12 +190,12 @@ for image_name in images_dict.keys():
             # fig = plt.figure(figsize=plt.figaspect(0.5))
             # ax = fig.add_subplot(1, 2, 1)
             # only show the first few modes
-            img = axs[0, 0].imshow(P_ref[54:75, 54:75], extent=[-10, 10, -10, 10], cmap="jet")
+            img = axs[0, 0].imshow(np.sort(P_ref)[-15:, -15:], extent=[5, 15, -10, -5], cmap="jet")
             fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 0])
             axs[0, 0].set_title("Fourier modes Reference {}".format(image_name))
             # ax = fig.add_subplot(1, 2, 2)
             # only show the first few modes
-            img = axs[0, 1].imshow(P_pred[54:75, 54:75], extent=[-10, 10, -10, 10], cmap="jet")
+            img = axs[0, 1].imshow(np.sort(P_pred)[-15:, -15:], extent=[5, 15, -10, -5], cmap="jet")
             fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 1])
             axs[0, 1].set_title("Fourier modes (network) at iter {}".format(n))
 
