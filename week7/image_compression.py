@@ -104,7 +104,7 @@ image_compressed_005 = compression_fft(resized_og_image, 0.05, is_plot=True)
 # ==========================
 num_inputs = 2  # for row and column in picture
 num_layers = 3  # number of hidden layers - add layers -> more expressive
-nodes_per_layer = 20
+nodes_per_layer = 45
 num_outputs = 1
 
 # connections between layers in the neural network
@@ -186,10 +186,10 @@ for image_name in images_dict.keys():
             F_pred = np.fft.fftshift(F_pred)
             P_pred = np.abs(F_pred)
 
-            fig, axs = plt.subplots(3, 2, figsize=plt.figaspect(0.5))
+            fig, axs = plt.subplots(2, 2, figsize=plt.figaspect(0.5))
             # fig = plt.figure(figsize=plt.figaspect(0.5))
             # ax = fig.add_subplot(1, 2, 1)
-            # only show the first few modes
+            # only show the first few modes - most energetic ones
             img = axs[0, 0].imshow(np.sort(P_ref)[-15:, -15:], extent=[5, 15, -10, -5], cmap="jet")
             fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 0])
             axs[0, 0].set_title("Fourier modes Reference {}".format(image_name))
@@ -199,27 +199,14 @@ for image_name in images_dict.keys():
             fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 1])
             axs[0, 1].set_title("Fourier modes (network) at iter {}".format(n))
 
-            # show all modes for comparison
-            img = axs[1, 0].imshow(P_ref, extent=[-10, 10, -10, 10], cmap="jet")
-            fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 0])
-            axs[1, 0].set_title("All Fourier modes Reference {}".format(image_name))
-            # ax = fig.add_subplot(1, 2, 2)
-            # only show the first few modes
-            # [-the_image.shape[0] // 2, the_image.shape[0] // 2,
-            #                                                    -the_image.shape[1] // 2, the_image.shape[0] // 2]
-            img = axs[1, 1].imshow(P_pred, extent=[-10, 10, -10, 10], cmap="jet")
-            fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[0, 1])
-            axs[1, 1].set_title("All Fourier modes (network) at iter {}".format(n))
-
-
-            img = axs[2, 0].imshow(images_dict[image_name], cmap="gray")
+            img = axs[1, 0].imshow(images_dict[image_name], cmap="gray")
             fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[1, 0])
-            axs[2, 0].set_title("Target Image (Reference) - Compressed {}%".format(float('.' + image_name[-2:]) * 100), loc='center', wrap=True)
+            axs[1, 0].set_title("Target Image (Reference) - Compressed {}%".format(float('.' + image_name[-2:]) * 100), loc='center', wrap=True)
 
 
-            img = axs[2, 1].imshow(y_pred_grid, cmap="gray")
+            img = axs[1, 1].imshow(y_pred_grid, cmap="gray")
             fig.colorbar(img, shrink=0.5, aspect=10, ax=axs[1, 1])
-            axs[2, 1].set_title("Approximated image at Iteration {}".format(n), loc='center', wrap=True)
+            axs[1, 1].set_title("Approximated image at Iteration {}".format(n), loc='center', wrap=True)
 
             plt.tight_layout()
             plt.savefig(save_plots_to + image_name +
