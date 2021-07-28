@@ -179,7 +179,7 @@ for image_name in images_dict.keys():
             loss_dict[image_name].append(loss_)
             print('Steps: %d, loss: %.3e' % (n, loss_))
 
-        if n == 1 or n % (max_iterations // 20) == 0:
+        if n == 1 or n % (max_iterations // 25) == 0:
             y_pred_ = sess.run(y_pred, feed_dict={x_train: np.hstack((X1_grid.reshape(-1, 1),
                                                                       X2_grid.reshape(-1, 1)))})
             y_pred_grid = y_pred_.reshape(f_grid.shape[0], -1)
@@ -222,7 +222,7 @@ for image_name in images_dict.keys():
     np.savetxt(save_output_to + image_name + '_loss.txt', loss_dict[image_name], fmt='%e')
     plt.semilogy(np.arange(max_iterations / 100), loss_dict[image_name], color='green')
     plt.title('Loss over time for {}% Compressed Image Training'.format(float('.' + image_name[-2:]) * 100))
-    plt.savefig(save_plots_to + image_name + 'Loss_over_time'.png)
+    plt.savefig(save_plots_to + image_name + 'Loss_over_time.png')
     plt.show()
 
 embed()
